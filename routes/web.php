@@ -4,7 +4,12 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\EnrollmentsController;
+use App\Http\Controllers\QuizzesController;
 
+Route::resource('dataEnrollments', EnrollmentsController::class);
+
+Route::resource('dataQuizzes', QuizzesController::class);
 Route::middleware(['auth'])->group(function () {
     Route::resource('payments', PaymentController::class);
 });
