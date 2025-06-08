@@ -2,23 +2,22 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ApiControllers\CourseApiController;
-use App\Http\Controllers\ApiControllers\CertificateApiController;
+use App\Http\Controllers\ApiControllers\AuthController;
 
-Route::apiResource('certificate', CertificateApiController::class);
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth'
+], function ($router) {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::get('/user-profile', [AuthController::class, 'userProfile']);
+});
 
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::get('/courses/enrolled', [CourseApiController::class, 'enrolled']);
-//     Route::apiResource('courses', CourseApiController::class);
-// });
-
-// خارج middleware المحمي
-Route::apiResource('courses', CourseApiController::class);
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-
-
-
-
+// Protected routes
+Route::middleware('auth:api')->group(function () {
+    Route::get('/dashboard', function () {
+        return response()->json(['message' => 'Welcome to your dashboard!']);
+    });
+});

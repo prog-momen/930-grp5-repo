@@ -109,7 +109,18 @@ return [
     | confirmation screen. By default, the timeout lasts for three hours.
     |
     */
+    'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
 
+        'api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+            'hash' => false,
+        ],
+    ],
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
 ];
