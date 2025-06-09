@@ -4,65 +4,114 @@ namespace App\Http\Controllers\ApiControllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use App\Models\User;
 
 class CourseApiController extends Controller
 {
-    public function enrolled()
+    /**
+     * Display a listing of courses
+     */
+    public function index(Request $request)
     {
-        $user = auth()->user();
-        $courses = $user->enrolledCourses()->get();
+        $query = Course::with('instructor');
 
-        if ($courses->isEmpty()) {
-            return response()->json([
-                'status' => 'success',
-                'courses' => []
-            ], 204); // No Content
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('title', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('info', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('category', 'LIKE', "%{$searchTerm}%");
+            });
         }
 
-        return response()->json([
-            'status' => 'success',
-            'courses' => $courses
-        ], 200); // OK
-    }
-
-    public function index()
-    {
-        $courses = Course::all();
-
-        if ($courses->isEmpty()) {
-            return response()->json([
-                'status' => 'success',
-                'courses' => []
-            ], 204); // No Content
+        // Category filter
+        if ($request->has('category') && !empty($request->category)) {
+            $query->where('category', $request->category);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'courses' => $courses
-        ], 200); // OK
-    }
-
-    public function create()
-    {
-        $user = auth()->user();
-        $instructors = [];
-
-        if (strtolower($user->role) === 'admin') {
-            $instructors = User::where('role', 'instructor')->get();
+        // Price range filter
+        if ($request->has('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->has('max_price')) {
+            $query->where('price', '<=', $request->max_price);
         }
 
+        // Sorting
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        // Pagination
+        $perPage = $request->get('per_page', 12);
+        $courses = $query->paginate($perPage);
+
         return response()->json([
-            'status' => 'success',
-            'instructors' => $instructors
-        ], 200); // OK
+            'success' => true,
+            'data' => $courses,
+            'message' => 'Courses retrieved successfully'
+        ]);
     }
 
+    /**
+     * Get popular courses
+     */
+    public function popular()
+    {
+        $courses = Course::with('instructor')
+            ->withCount('enrollments')
+            ->orderBy('enrollments_count', 'desc')
+            ->limit(8)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $courses,
+            'message' => 'Popular courses retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Get course categories
+     */
+    public function categories()
+    {
+        $categories = Course::select('category')
+            ->whereNotNull('category')
+            ->distinct()
+            ->pluck('category');
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories,
+            'message' => 'Categories retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Display the specified course
+     */
+    public function show($id)
+    {
+        $course = Course::with(['instructor', 'lessons', 'reviews.user'])
+            ->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $course,
+            'message' => 'Course retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Store a newly created course
+     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'title' => 'required|string|max:255',
             'info' => 'nullable|string',
             'category' => 'nullable|string|max:255',
@@ -72,60 +121,28 @@ class CourseApiController extends Controller
 
         $course = Course::create([
             'id' => (string) Str::uuid(),
-            'title' => $validated['title'],
-            'info' => $validated['info'] ?? null,
-            'category' => $validated['category'] ?? null,
-            'price' => $validated['price'],
-            'instructor_id' => $validated['instructor_id'],
+            'title' => $request->title,
+            'info' => $request->info,
+            'category' => $request->category,
+            'price' => $request->price,
+            'instructor_id' => $request->instructor_id,
         ]);
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Course created successfully.',
-            'course' => $course
-        ], 201); // Created
+            'success' => true,
+            'data' => $course,
+            'message' => 'Course created successfully'
+        ], 201);
     }
 
-    public function show($id)
+    /**
+     * Update the specified course
+     */
+    public function update(Request $request, $id)
     {
-        $course = Course::find($id);
+        $course = Course::findOrFail($id);
 
-        if (!$course) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Course not found.'
-            ], 404); // Not Found
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'course' => $course
-        ], 200); // OK
-    }
-
-    public function edit($id)
-    {
-        $course = Course::find($id);
-
-        if (!$course) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Course not found.'
-            ], 404); // Not Found
-        }
-
-        $teachers = User::where('role', 'instructor')->get();
-
-        return response()->json([
-            'status' => 'success',
-            'course' => $course,
-            'teachers' => $teachers
-        ], 200); // OK
-    }
-
-    public function update(Request $request, Course $course)
-    {
-        $validated = $request->validate([
+        $request->validate([
             'title' => 'required|string|max:255',
             'info' => 'nullable|string',
             'category' => 'nullable|string|max:255',
@@ -133,22 +150,65 @@ class CourseApiController extends Controller
             'instructor_id' => 'required|uuid|exists:users,id',
         ]);
 
-        $course->update($validated);
+        $course->update($request->all());
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Course updated successfully.',
-            'course' => $course
-        ], 200); // OK
+            'success' => true,
+            'data' => $course,
+            'message' => 'Course updated successfully'
+        ]);
     }
 
-    public function destroy(Course $course)
+    /**
+     * Remove the specified course
+     */
+    public function destroy($id)
     {
+        $course = Course::findOrFail($id);
         $course->delete();
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Course deleted successfully.'
-        ], 200); // OK
+            'success' => true,
+            'message' => 'Course deleted successfully'
+        ]);
+    }
+
+    /**
+     * Get user's enrolled courses
+     */
+    public function enrolled(Request $request)
+    {
+        $user = $request->user();
+        $courses = $user->enrolledCourses()->with('instructor')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $courses,
+            'message' => 'Enrolled courses retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Enroll user in a course
+     */
+    public function enroll(Request $request, $courseId)
+    {
+        $user = $request->user();
+        $course = Course::findOrFail($courseId);
+
+        // Check if already enrolled
+        if ($user->enrolledCourses()->where('course_id', $courseId)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Already enrolled in this course'
+            ], 400);
+        }
+
+        $user->enrolledCourses()->attach($courseId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully enrolled in course'
+        ]);
     }
 }

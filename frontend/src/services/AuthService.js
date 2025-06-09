@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/';
+const API_URL = 'http://localhost:8000/api/auth/';
 
 class AuthService {
   login(email, password) {
@@ -11,14 +11,26 @@ class AuthService {
       })
       .then(response => {
         if (response.data.token) {
-          localStorage.setItem('user', JSON.stringify(response.data));
+          this.setToken(response.data.token);
+          this.setUser(response.data.user);
         }
         return response.data;
       });
   }
 
   logout() {
-    localStorage.removeItem('user');
+    const token = this.getToken();
+    if (token) {
+      return axios
+        .post(API_URL + 'logout', {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .finally(() => {
+          this.clearStorage();
+        });
+    }
+    this.clearStorage();
+    return Promise.resolve();
   }
 
   register(name, email, password) {
@@ -29,13 +41,44 @@ class AuthService {
     });
   }
 
-  getCurrentUser() {
-    return JSON.parse(localStorage.getItem('user'));
+  refreshToken() {
+    return axios
+      .post(API_URL + 'refresh', {}, {
+        withCredentials: true
+      })
+      .then(response => {
+        if (response.data.token) {
+          this.setToken(response.data.token);
+          return response.data;
+        }
+        return Promise.reject('No token in refresh response');
+      })
+      .catch(error => {
+        this.clearStorage();
+        throw error;
+      });
+  }
+
+  setToken(token) {
+    localStorage.setItem('token', token);
+  }
+
+  setUser(user) {
+    localStorage.setItem('user', JSON.stringify(user));
   }
 
   getToken() {
-    const user = this.getCurrentUser();
-    return user?.token;
+    return localStorage.getItem('token');
+  }
+
+  getCurrentUser() {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  }
+
+  clearStorage() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   }
 
   isAuthenticated() {

@@ -17,7 +17,7 @@ const Register = () => {
 
     AuthService.register(name, email, password)
       .then(() => {
-        navigate('/login');
+        navigate('/');
       })
       .catch((error) => {
         const resMessage =
