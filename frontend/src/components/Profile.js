@@ -7,7 +7,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
-  const [roles, setRoles] = useState(['admin', 'instructor', 'user']);
+  const [roles, setRoles] = useState(['Admin', 'Instructor', 'Student']);
   const [stats, setStats] = useState(null);
   const [instructorStats, setInstructorStats] = useState(null);
   const [isEditing, setIsEditing] = useState(false);

@@ -1,0 +1,145 @@
+.course-header {
+  background: linear-gradient(135deg, #198754, #20c997);
+  padding: 60px 0;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.course-preview-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.course-preview-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.course-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(45deg, #198754, #20c997);
+  border: none;
+  box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3);
+}
+
+.course-play-btn:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  background: linear-gradient(45deg, #157347, #1ea085);
+}
+
+.course-info {
+  background: #f8f9fa;
+}
+
+.badge.bg-success {
+  background: linear-gradient(45deg, #198754, #20c997) !important;
+  border: none;
+  padding: 8px 16px;
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link {
+  color: #495057;
+  font-weight: 500;
+  padding: 12px 24px;
+}
+
+.nav-tabs .nav-link.active {
+  color: #198754;
+  font-weight: 600;
+  border-bottom: 3px solid #198754;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #f8f9fa;
+  color: #198754;
+  font-weight: 600;
+}
+
+.list-group-item {
+  border: none;
+  padding: 16px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.btn-success {
+  background: linear-gradient(45deg, #198754, #20c997);
+  border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background: linear-gradient(45deg, #157347, #1ea085);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+}
+
+.premium-features {
+  background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.premium-features h6 {
+  color: #198754;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.premium-features ul li {
+  color: #495057;
+  margin-bottom: 8px;
+  padding-left: 5px;
+}
+
+.premium-features ul li::before {
+  content: "✓";
+  color: #198754;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.card:hover {
+  border-color: #198754;
+  box-shadow: 0 8px 25px rgba(25, 135, 84, 0.15);
+}
+
+.unlock-animation {
+  animation: unlockPulse 2s ease-in-out;
+}
+
+@keyframes unlockPulse {
+  0% {
+    background-color: #f8f9fa;
+  }
+  50% {
+    background-color: #d1eddd;
+  }
+  100% {
+    background-color: #f8f9fa;
+  }
+}

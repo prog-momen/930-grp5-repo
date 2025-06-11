@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiControllers\AuthController;
-use App\Http\Controllers\ApiControllers\PaymentController;
+use App\Http\Controllers\ApiControllers\PaymentApiController;
 use App\Http\Controllers\ApiControllers\CourseApiController;
 use App\Http\Controllers\ApiControllers\WishlistApiController;
 use App\Http\Controllers\ApiControllers\CartApiController;
@@ -37,13 +37,13 @@ Route::group([
     'middleware' => ['api', 'auth:api'],
     'prefix' => 'payments'
 ], function ($router) {
-    Route::get('/', [PaymentController::class, 'index']);
-    Route::post('/', [PaymentController::class, 'store']);
-    Route::get('/user', [PaymentController::class, 'userPayments']);
-    Route::get('/{id}', [PaymentController::class, 'show']);
-    Route::put('/{id}', [PaymentController::class, 'update']);
-    Route::delete('/{id}', [PaymentController::class, 'destroy']);
-    Route::post('/{id}/process', [PaymentController::class, 'processPayment']);
+    Route::get('/', [PaymentApiController::class, 'index']);
+    Route::post('/', [PaymentApiController::class, 'store']);
+    Route::get('/user', [PaymentApiController::class, 'userPayments']);
+    Route::get('/{id}', [PaymentApiController::class, 'show']);
+    Route::put('/{id}', [PaymentApiController::class, 'update']);
+    Route::delete('/{id}', [PaymentApiController::class, 'destroy']);
+    Route::post('/{id}/process', [PaymentApiController::class, 'processPayment']);
 });
 
 // Protected Course Routes
