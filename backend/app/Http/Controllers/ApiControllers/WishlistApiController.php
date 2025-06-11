@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\ApiControllers;
+
 use App\Http\Controllers\Controller;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
@@ -18,32 +19,19 @@ class WishlistApiController extends Controller
 
     public function store(Request $request)
     {
-        $request->merge([
-            'user_id' => (string) $request->user_id,
-            'course_id' => (string) $request->course_id,
-        ]);
-
-        $uuidPattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
-
-        if (!preg_match($uuidPattern, $request->user_id)) {
-            return response()->json(['error' => 'user_id غير صالح، يرجى إدخال UUID صحيح.'], 422);
-        }
-
-        if (!preg_match($uuidPattern, $request->course_id)) {
-            return response()->json(['error' => 'course_id غير صالح، يرجى إدخال UUID صحيح.'], 422);
-        }
+        Log::info($request->all());
 
         $request->validate([
-            'user_id' => 'required|uuid|exists:users,id',
-            'course_id' => 'required|uuid',
+            'course_id' => 'required|uuid|exists:courses,id',
         ]);
 
         try {
+            $user = auth()->user(); // ✅ نحصل على المستخدم من التوكن
+
             $wishlist = Wishlist::create([
                 'id' => Str::uuid()->toString(),
-                'user_id' => $request->user_id,
+                'user_id' => $user->id,
                 'course_id' => $request->course_id,
-                'created_at' => now(),
             ]);
 
             return response()->json([
@@ -65,11 +53,9 @@ class WishlistApiController extends Controller
         }
 
         $request->validate([
-            'user_id' => 'required|uuid|exists:users,id',
-            'course_id' => 'required|uuid',
+            'course_id' => 'required|uuid|exists:courses,id',
         ]);
 
-        $wishlist->user_id = $request->user_id;
         $wishlist->course_id = $request->course_id;
         $wishlist->save();
 

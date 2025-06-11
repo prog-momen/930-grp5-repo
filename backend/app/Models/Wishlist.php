@@ -16,9 +16,9 @@ class Wishlist extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'id',
         'user_id',
-        'course_id',
-        // لا حاجة لكتابة created_at في fillable
+        'course_id'
     ];
 
     public $timestamps = true;
