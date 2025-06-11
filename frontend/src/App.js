@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+
+// Services
+import AuthService from './services/AuthService';
 
 // Components
 import Register from './components/Register';
@@ -22,6 +25,8 @@ import Home from './components/Home';
 import './App.css';
 
 function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+
   return (
     <Router>
       <div className="d-flex flex-column min-vh-100">
@@ -29,7 +34,9 @@ function App() {
         <main className="flex-grow-1">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/register" element={<Register />} />
+            {AuthService.isAuthenticated() ? null : (
+              <Route path="/register" element={<Register />} />
+            )}
             <Route
               path="/dashboard"
               element={
@@ -56,31 +63,42 @@ function App() {
               }
             />
             <Route
-          path="/wishlist"
-          element={
-            <ProtectedRoute>
-              <Wishlist />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/cart"
-          element={
-            <ProtectedRoute>
-              <Cart />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/search" element={<Search />} />
-        <Route path="/courses/:id" element={<CourseDetail />} />
+              path="/wishlist"
+              element={
+                <ProtectedRoute>
+                  <Wishlist />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/search" element={<Search />} />
+            <Route path="/courses/:id" element={<CourseDetail />} />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <div>
+                    <h1>Users</h1>
+                    <p>This is a placeholder for the users page.</p>
+                  </div>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
         <Footer />

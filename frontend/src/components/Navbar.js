@@ -10,6 +10,18 @@ const Navbar = () => {
   const location = useLocation();
   const [currentUser, setCurrentUser] = useState(AuthService.getCurrentUser());
   const [showLoginModal, setShowLoginModal] = useState(false);
+ 
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setCurrentUser(AuthService.getCurrentUser());
+    };
+
+    window.addEventListener('profile-updated', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('profile-updated', handleProfileUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     const handleShowLoginModal = () => {

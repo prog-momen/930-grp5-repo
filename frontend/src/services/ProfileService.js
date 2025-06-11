@@ -54,6 +54,15 @@ class ProfileService {
   getCertificates() {
     return api.get('/profile/certificates');
   }
+
+  // Get all users
+  getAllUsers(token) {
+    return api.get('/users', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
 }
 
 export default new ProfileService();

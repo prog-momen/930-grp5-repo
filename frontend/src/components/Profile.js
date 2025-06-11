@@ -6,6 +6,8 @@ import ProfileService from '../services/ProfileService';
 const Profile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState(['admin', 'instructor', 'user']);
   const [stats, setStats] = useState(null);
   const [instructorStats, setInstructorStats] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -14,8 +16,6 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
-    bio: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
@@ -23,22 +23,35 @@ const Profile = () => {
 
   useEffect(() => {
     loadProfileData();
+    loadUsers();
   }, []);
 
   const loadProfileData = async () => {
     try {
       setLoading(true);
-      
+
+      // Check if user is authenticated
+      if (!AuthService.isAuthenticated()) {
+        setMessage('You are not authenticated. Please log in.');
+        return;
+      }
+
       // Get profile data
       const profileResponse = await ProfileService.getProfile();
+      if (!profileResponse || !profileResponse.data || !profileResponse.data.data) {
+        setMessage('Error loading profile data. Please try again.');
+        return;
+      }
       const userData = profileResponse.data.data;
+      if (!userData) {
+        setMessage('Error loading profile data. Please try again.');
+        return;
+      }
       setUser(userData);
-      
+
       setFormData({
         name: userData.name || '',
         email: userData.email || '',
-        phone: userData.phone || '',
-        bio: userData.bio || '',
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
@@ -58,6 +71,17 @@ const Profile = () => {
       setMessage('Error loading profile data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const token = AuthService.getToken();
+      const response = await ProfileService.getAllUsers(token);
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      setMessage('Error loading users');
     }
   };
 
@@ -100,13 +124,16 @@ const Profile = () => {
 
       setMessage('Profile updated successfully');
       setIsEditing(false);
-      
+
+
       // Reload profile data
       await loadProfileData();
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Error updating profile';
       setMessage(errorMessage);
     }
+    // Dispatch custom event to update navbar
+    window.dispatchEvent(new Event('profile-updated'));
   };
 
   if (loading) {
@@ -148,7 +175,7 @@ const Profile = () => {
                     style={{ width: '120px', height: '120px', objectFit: 'cover' }}
                   />
                 ) : (
-                  <div 
+                  <div
                     className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto"
                     style={{ width: '120px', height: '120px', fontSize: '3rem' }}
                   >
@@ -158,7 +185,7 @@ const Profile = () => {
               </div>
               <h5 className="mb-1">{user.name}</h5>
               <p className="text-muted mb-3">{user.role}</p>
-              <button 
+              <button
                 className="btn btn-outline-primary btn-sm"
                 onClick={() => setIsEditing(true)}
               >
@@ -225,28 +252,7 @@ const Profile = () => {
                         disabled={!isEditing}
                       />
                     </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Phone Number</label>
-                      <input
-                        type="tel"
-                        className="form-control"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                      />
-                    </div>
-                    <div className="col-12 mb-3">
-                      <label className="form-label">Bio</label>
-                      <textarea
-                        className="form-control"
-                        name="bio"
-                        rows="3"
-                        value={formData.bio}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                      ></textarea>
-                    </div>
+
                   </div>
                 </div>
 
@@ -295,8 +301,8 @@ const Profile = () => {
                     <button type="submit" className="btn btn-primary">
                       Save Changes
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="btn btn-outline-secondary"
                       onClick={() => setIsEditing(false)}
                     >
@@ -375,6 +381,80 @@ const Profile = () => {
                       <div className="card-body text-center">
                         <h3 className="mb-1">${instructorStats.total_revenue}</h3>
                         <p className="mb-0">Total Revenue</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* List of Courses */}
+                <div className="mt-4">
+                  <h5>My Courses</h5>
+                  <div className="list-group">
+                    {instructorStats.courses && instructorStats.courses.length > 0 ? (
+                      instructorStats.courses.map(course => (
+                        <a
+                          key={course.id}
+                          href={`/course/${course.id}/edit`}
+                          className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                        >
+                          {course.title}
+                          <span className="badge bg-primary rounded-pill">{course.students} Students</span>
+                          <button className="btn btn-outline-secondary btn-sm">Edit</button>
+                        </a>
+                      ))
+                    ) : (
+                      <p>No courses found.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Admin Dashboard */}
+          {user.role === 'admin' && (
+            <div className="card shadow-sm mt-4">
+              <div className="card-header bg-transparent py-3">
+                <h5 className="mb-0">Admin Dashboard</h5>
+              </div>
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-4 mb-3">
+                    <div className="card bg-light">
+                      <div className="card-body text-center">
+                        <h3 className="mb-1">Reports</h3>
+                        <p className="mb-0 text-muted">View all reports</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <div className="card bg-light">
+                      <div className="card-body text-center">
+                        <h3 className="mb-1">Application Report</h3>
+                        <p className="mb-0 text-muted">View application report</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <div className="card bg-light">
+                      <div className="card-body text-center">
+                        <h3 className="mb-1">Technical Report</h3>
+                        <p className="mb-0 text-muted">View technical report</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <div className="card bg-light">
+                      <div className="card-body text-center">
+                        <h3 className="mb-1">Student Report</h3>
+                        <p className="mb-0 text-muted">View student report</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <div className="card bg-light">
+                      <div className="card-body text-center">
+                        <h3 className="mb-1">Certificate Report</h3>
+                        <p className="mb-0 text-muted">View certificate report</p>
                       </div>
                     </div>
                   </div>

@@ -46,7 +46,7 @@ const Courses = ({ enrolled = false }) => {
         response = await CourseService.getCourses(filters);
       }
       
-      // Ensure courses is always an array
+      // Extract courses array from paginated response
       const coursesData = response.data?.data || response.data || [];
       setCourses(Array.isArray(coursesData) ? coursesData : []);
     } catch (error) {
