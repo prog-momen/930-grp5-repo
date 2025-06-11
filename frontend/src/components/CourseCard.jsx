@@ -1,12 +1,15 @@
 import "./CourseCard.css";
 import { FaStar } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
-export default function CourseCard() {
+export default function CourseCard({ course }) {
   return (
     <div className="card shadow-sm mb-4">
       <div className="card-body">
         <p className="text-muted small mb-1">Development / Mobile Engineer</p>
-        <h4 className="card-title mb-2">Make Uber Clone App</h4>
+        <Link to={`/free-course/${course.id}`}>
+          <h4 className="card-title mb-2">{course.title}</h4>
+        </Link>
         <p className="text-muted mb-2">Steven Arnatouvic</p>
         <div className="d-flex align-items-center mb-3">
           <FaStar className="text-warning me-1" />

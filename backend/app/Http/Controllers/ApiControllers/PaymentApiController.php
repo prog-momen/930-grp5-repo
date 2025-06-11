@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Validator;
 
-class PaymentController extends Controller
+class PaymentApiController extends Controller
 {
     public function __construct()
     {

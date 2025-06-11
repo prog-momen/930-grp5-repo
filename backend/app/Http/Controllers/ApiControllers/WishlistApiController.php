@@ -11,7 +11,8 @@ class WishlistApiController extends Controller
 {
     public function index()
     {
-        $wishlists = Wishlist::with('user')->get();
+        $user = auth()->user();
+        $wishlists = Wishlist::with('user')->where('user_id', $user->id)->get();
         return response()->json($wishlists, 200);
     }
 
