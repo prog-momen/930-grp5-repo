@@ -2,8 +2,8 @@ import api from './api';
 
 class ProfileService {
   // Get user profile details
-  getProfile() {
-    return api.get('/profile');
+  getProfile(id) {
+    return api.get(`/profile/${id ? id : ''}`);
   }
 
   // Update user profile

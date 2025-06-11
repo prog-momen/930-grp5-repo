@@ -62,7 +62,7 @@ const Profile = () => {
       setStats(statsResponse.data.data);
 
       // Get instructor stats if user is instructor
-      if (userData.role === 'instructor') {
+      if (userData.role === 'Instructor') {
         const instructorStatsResponse = await ProfileService.getInstructorStats();
         setInstructorStats(instructorStatsResponse.data.data);
       }
@@ -101,9 +101,7 @@ const Profile = () => {
       // Update profile
       const profileData = {
         name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        bio: formData.bio
+        email: formData.email
       };
 
       await ProfileService.updateProfile(profileData);

@@ -13,9 +13,13 @@ class ProfileApiController extends Controller
     /**
      * Get user profile
      */
-    public function show(Request $request)
+    public function show(Request $request, $id = null)
     {
         $user = $request->user();
+
+        if ($id && $user->isAdmin()) {
+            $user = \App\Models\User::findOrFail($id);
+        }
 
         return response()->json([
             'success' => true,
@@ -27,9 +31,13 @@ class ProfileApiController extends Controller
     /**
      * Update user profile
      */
-    public function update(Request $request)
+    public function update(Request $request, $id = null)
     {
         $user = $request->user();
+
+        if ($id && $user->isAdmin()) {
+            $user = \App\Models\User::findOrFail($id);
+        }
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -230,20 +238,24 @@ class ProfileApiController extends Controller
     /**
      * Delete user account
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request, $id = null)
     {
-        $request->validate([
-            'password' => 'required'
-        ]);
-
         $user = $request->user();
 
-        // Verify password
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Password is incorrect'
-            ], 400);
+        if ($id && $user->isAdmin()) {
+            $user = \App\Models\User::findOrFail($id);
+        } else {
+            $request->validate([
+                'password' => 'required'
+            ]);
+
+            // Verify password
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Password is incorrect'
+                ], 400);
+            }
         }
 
         // Delete avatar if exists
