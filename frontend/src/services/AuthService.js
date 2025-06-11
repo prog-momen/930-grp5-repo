@@ -1,10 +1,10 @@
-import axios from 'axios';
+import api from './api';
 
-const API_URL = 'http://localhost:8000/api/auth/';
+const API_URL = '/auth/';
 
 class AuthService {
   login(email, password) {
-    return axios
+    return api
       .post(API_URL + 'login', {
         email,
         password
@@ -21,7 +21,7 @@ class AuthService {
   logout() {
     const token = this.getToken();
     if (token) {
-      return axios
+      return api
         .post(API_URL + 'logout', {}, {
           headers: { Authorization: `Bearer ${token}` }
         })
@@ -34,7 +34,7 @@ class AuthService {
   }
 
   register(name, email, password) {
-    return axios.post(API_URL + 'register', {
+    return api.post(API_URL + 'register', {
       name,
       email,
       password
@@ -42,7 +42,7 @@ class AuthService {
   }
 
   refreshToken() {
-    return axios
+    return api
       .post(API_URL + 'refresh', {}, {
         withCredentials: true
       })
