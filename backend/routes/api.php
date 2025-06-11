@@ -127,6 +127,14 @@ Route::middleware('verify.supabase.jwt')->group(function () {
     ]);
 });
 
+// Instructor Report Routes
+Route::group([
+    'middleware' => ['api'], // Temporarily removed 'auth:api' for testing
+    'prefix' => 'instructor'
+], function ($router) {
+    Route::post('/reports', [\App\Http\Controllers\InstructorReportController::class, 'submitReport']);
+});
+
 // Protected routes
 Route::middleware('auth:api')->group(function () {
     Route::get('/dashboard', function () {

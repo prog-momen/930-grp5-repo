@@ -21,6 +21,7 @@ import Navbar from './components/Navbar';
 import CourseList from './components/CourseList';
 import Footer from './components/Footer';
 import Home from './components/Home';
+import BecomeInstructor from './components/BecomeInstructor'; // Import the component
 
 // Styles
 import './App.css';
@@ -102,12 +103,7 @@ function App() {
             />
             <Route
               path="/become-instructor"
-              element={
-                <div>
-                  <h1>Become Instructor</h1>
-                  <p>This is a placeholder for the Become Instructor page.</p>
-                </div>
-              }
+              element={<BecomeInstructor />}
             />
             <Route path="/course-list" element={<CourseList />} />
 
