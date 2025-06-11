@@ -27,11 +27,24 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        if (!$token = auth()->attempt($validator->validated())) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+        $credentials = $validator->validated();
 
-        return $this->createNewToken($token);
+        \Log::info('Attempting login with credentials:', $credentials);
+
+        try {
+            if (!$token = auth()->attempt($credentials)) {
+                \Log::error('Authentication failed for credentials:', $credentials);
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            return $this->createNewToken($token);
+        } catch (\Exception $e) {
+            \Log::error('Exception during authentication:', [
+                'message' => $e->getMessage(),
+                'credentials' => $credentials,
+            ]);
+            return response()->json(['error' => 'Internal Server Error'], 500);
+        }
     }
 
     public function register(Request $request)
@@ -49,7 +62,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($request->password, ['rounds' => 12]),
         ]);
 
         return response()->json([

@@ -66,11 +66,10 @@ const LoginModal = ({ show, onClose, onLoginSuccess }) => {
 
       {/* Modal */}
       <div 
-        className="modal fade show d-block" 
-        tabIndex="-1" 
+        className="modal fade show d-block"
+        tabIndex="-1"
         style={{ zIndex: 1050 }}
-        aria-labelledby="loginModalLabel" 
-        aria-hidden="true"
+        aria-labelledby="loginModalLabel"
       >
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">

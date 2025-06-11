@@ -99,6 +99,19 @@ const Navbar = () => {
             </div>
             <span className="fw-bold text-primary fs-4">Learnify</span>
           </Link>
+          
+          {/* Browse Dropdown */}
+          <div className="nav-item dropdown">
+            <Link className="nav-link dropdown-toggle" to="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Browse
+            </Link>
+            <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><Link className="dropdown-item" to="/course-list">Courses</Link></li>
+              <li><Link className="dropdown-item" to="/categories">Categories</Link></li>
+              <li><hr className="dropdown-divider" /></li>
+              <li><Link className="dropdown-item" to="/all-courses">All Courses</Link></li>
+            </ul>
+          </div>
 
           {/* Mobile Toggle */}
           <button
@@ -124,33 +137,20 @@ const Navbar = () => {
                   <input
                     type="text"
                     className="form-control border-start-0 ps-0"
-                    placeholder="What do you want to learn today?"
+                    placeholder="Search for course"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                   <button className="btn btn-primary px-4" type="submit">
-                    Search
+                    <i className="fas fa-search"></i>
                   </button>
                 </div>
               </form>
+              <Link to="/become-instructor" className="text-primary ms-3">Become Instructor</Link>
             </div>
 
             {/* Navigation Links */}
             <ul className="navbar-nav ms-auto align-items-center">
-              <li className="nav-item me-3">
-                <Link 
-                  to="/courses" 
-                  className={`nav-link fw-semibold ${isActive('/courses')} position-relative`}
-                >
-                  <i className="fas fa-book me-2"></i>
-                  Courses
-                  {isActive('/courses') && (
-                    <span className="position-absolute bottom-0 start-50 translate-middle-x bg-primary rounded-pill" 
-                          style={{ width: '6px', height: '6px' }}></span>
-                  )}
-                </Link>
-              </li>
-
               {currentUser ? (
                 <>
                   {/* Wishlist */}
@@ -193,13 +193,19 @@ const Navbar = () => {
 
                   {/* Notifications */}
                   <li className="nav-item me-3">
-                    <button className="nav-link btn btn-link position-relative p-2" title="Notifications">
-                      <i className="far fa-bell fs-5 text-muted"></i>
-                      <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning" 
-                            style={{ fontSize: '0.7rem' }}>
-                        3
-                      </span>
-                    </button>
+                    <Link 
+                      to="/notifications" 
+                      className="nav-link position-relative p-2"
+                      title="Notifications"
+                    >
+                      <div className="position-relative">
+                        <i className="far fa-bell fs-5 text-muted"></i>
+                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning" 
+                              style={{ fontSize: '0.7rem' }}>
+                          3
+                        </span>
+                      </div>
+                    </Link>
                   </li>
 
                   {/* User Dropdown */}
@@ -324,6 +330,7 @@ const Navbar = () => {
               </div>
             </form>
           </div>
+          <Link to="/become-instructor" className="text-primary d-lg-none mt-2">Become Instructor</Link>
         </div>
       </nav>
 

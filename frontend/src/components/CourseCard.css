@@ -1,0 +1,90 @@
+.course-container {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.course-header {
+  margin-bottom: 40px;
+}
+
+.course-category {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.course-title {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  color: #1a1a1a;
+}
+
+.course-instructor {
+  color: #4c1d95;
+  font-size: 16px;
+  margin: 0 0 10px 0;
+}
+
+.course-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.star-icon {
+  color: #fbbf24;
+}
+
+.rating-value {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.rating-count {
+  color: #666;
+}
+
+.course-content h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.lectures-list {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.lecture-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.lecture-status {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.lecture-status.completed {
+  background-color: #4c1d95;
+}
+
+.lecture-title {
+  flex: 1;
+  font-size: 14px;
+}
+
+.preview-btn {
+  padding: 6px 12px;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 4px;
+  color: #666;
+  cursor: pointer;
+}
+  

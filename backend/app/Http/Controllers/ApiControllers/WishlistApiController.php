@@ -1,147 +1,104 @@
 <?php
 
 namespace App\Http\Controllers\ApiControllers;
-
 use App\Http\Controllers\Controller;
 use App\Models\Wishlist;
-use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class WishlistApiController extends Controller
 {
-    /**
-     * Get user's wishlist items
-     */
-    public function index(Request $request)
+    public function index()
     {
-        $user = $request->user();
-        $wishlistItems = Wishlist::where('user_id', $user->id)
-            ->with('course.instructor')
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'data' => $wishlistItems,
-            'message' => 'Wishlist items retrieved successfully'
-        ]);
+        $wishlists = Wishlist::with('user')->get();
+        return response()->json($wishlists, 200);
     }
 
-    /**
-     * Add a course to wishlist
-     */
     public function store(Request $request)
     {
+        $request->merge([
+            'user_id' => (string) $request->user_id,
+            'course_id' => (string) $request->course_id,
+        ]);
+
+        $uuidPattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
+
+        if (!preg_match($uuidPattern, $request->user_id)) {
+            return response()->json(['error' => 'user_id غير صالح، يرجى إدخال UUID صحيح.'], 422);
+        }
+
+        if (!preg_match($uuidPattern, $request->course_id)) {
+            return response()->json(['error' => 'course_id غير صالح، يرجى إدخال UUID صحيح.'], 422);
+        }
+
         $request->validate([
-            'course_id' => 'required|uuid|exists:courses,id'
+            'user_id' => 'required|uuid|exists:users,id',
+            'course_id' => 'required|uuid',
         ]);
 
-        $user = $request->user();
+        try {
+            $wishlist = Wishlist::create([
+                'id' => Str::uuid()->toString(),
+                'user_id' => $request->user_id,
+                'course_id' => $request->course_id,
+                'created_at' => now(),
+            ]);
 
-        // Check if already in wishlist
-        $existingItem = Wishlist::where('user_id', $user->id)
-            ->where('course_id', $request->course_id)
-            ->first();
-
-        if ($existingItem) {
             return response()->json([
-                'success' => false,
-                'message' => 'Course already in wishlist'
-            ], 400);
+                'message' => 'تمت إضافة الدورة إلى قائمة الرغبات',
+                'data' => $wishlist
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Wishlist API Store Error: ' . $e->getMessage());
+            return response()->json(['error' => 'حدث خطأ أثناء الإضافة'], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $wishlist = Wishlist::find($id);
+
+        if (!$wishlist) {
+            return response()->json(['error' => 'العنصر غير موجود'], 404);
         }
 
-        $wishlistItem = Wishlist::create([
-            'id' => (string) Str::uuid(),
-            'user_id' => $user->id,
-            'course_id' => $request->course_id
+        $request->validate([
+            'user_id' => 'required|uuid|exists:users,id',
+            'course_id' => 'required|uuid',
         ]);
 
-        $wishlistItem->load('course.instructor');
+        $wishlist->user_id = $request->user_id;
+        $wishlist->course_id = $request->course_id;
+        $wishlist->save();
 
         return response()->json([
-            'success' => true,
-            'data' => $wishlistItem,
-            'message' => 'Course added to wishlist successfully'
-        ], 201);
+            'message' => 'تم تحديث عنصر قائمة الرغبات',
+            'data' => $wishlist
+        ], 200);
     }
 
-    /**
-     * Check if a course is in user's wishlist
-     */
-    public function check(Request $request, $courseId)
+    public function destroy($id)
     {
-        $user = $request->user();
-        $exists = Wishlist::where('user_id', $user->id)
-            ->where('course_id', $courseId)
-            ->exists();
+        $wishlist = Wishlist::find($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'inWishlist' => $exists
-            ]
-        ]);
-    }
-
-    /**
-     * Remove a course from wishlist
-     */
-    public function destroy(Request $request, $courseId)
-    {
-        $user = $request->user();
-
-        $deleted = Wishlist::where('user_id', $user->id)
-            ->where('course_id', $courseId)
-            ->delete();
-
-        if (!$deleted) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Course not found in wishlist'
-            ], 404);
+        if (!$wishlist) {
+            return response()->json(['error' => 'العنصر غير موجود'], 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Course removed from wishlist successfully'
-        ]);
+        $wishlist->delete();
+
+        return response()->json(['message' => 'تم حذف العنصر من قائمة الرغبات'], 200);
     }
 
-    /**
-     * Get wishlist count
-     */
-    public function count(Request $request)
+    public function show($id)
     {
-        $user = $request->user();
-        $count = Wishlist::where('user_id', $user->id)->count();
+        $wishlist = Wishlist::with('user')->find($id);
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'count' => $count
-            ]
-        ]);
-    }
-
-    /**
-     * Move all wishlist items to cart
-     */
-    public function moveAllToCart(Request $request)
-    {
-        $user = $request->user();
-        $wishlistItems = Wishlist::where('user_id', $user->id)->get();
-
-        foreach ($wishlistItems as $item) {
-            // Add to cart logic here
-            // This will depend on your cart implementation
+        if (!$wishlist) {
+            return response()->json(['error' => 'العنصر غير موجود'], 404);
         }
 
-        // Clear wishlist after moving to cart
-        Wishlist::where('user_id', $user->id)->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'All items moved to cart successfully'
-        ]);
+        return response()->json($wishlist, 200);
     }
 }

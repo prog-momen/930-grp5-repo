@@ -15,22 +15,29 @@ const Register = () => {
     setMessage('');
     setLoading(true);
 
-    AuthService.register(name, email, password)
-      .then(() => {
-        navigate('/');
-      })
-      .catch((error) => {
-        const resMessage =
-          (error.response &&
-           error.response.data &&
-           error.response.data.message) ||
-          error.message ||
-          error.toString();
+        AuthService.register(name, email, password)
+            .then(() => {
+                navigate('/');
+            })
+            .catch((error) => {
+                let resMessage = '';
+                if (error.response && error.response.data) {
+                    if (error.response.data.errors) {
+                        // Validation errors from Laravel
+                        resMessage = Object.values(error.response.data.errors).flat().join('<br>');
+                    } else if (error.response.data.message) {
+                        resMessage = error.response.data.message;
+                    } else {
+                        resMessage = JSON.stringify(error.response.data);
+                    }
+                } else {
+                    resMessage = error.message || error.toString();
+                }
 
-        setLoading(false);
-        setMessage(resMessage);
-      });
-  };
+                setLoading(false);
+                setMessage(resMessage);
+            });
+    };
 
   return (
     <div className="container mt-5">

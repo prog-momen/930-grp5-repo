@@ -152,20 +152,6 @@ const Footer = () => {
                 </button>
               </div>
             </form>
-            <div className="d-flex gap-2">
-              <img 
-                src="https://via.placeholder.com/120x40/007bff/ffffff?text=App+Store" 
-                alt="Download on App Store" 
-                className="img-fluid"
-                style={{ maxHeight: '40px' }}
-              />
-              <img 
-                src="https://via.placeholder.com/120x40/28a745/ffffff?text=Google+Play" 
-                alt="Get it on Google Play" 
-                className="img-fluid"
-                style={{ maxHeight: '40px' }}
-              />
-            </div>
           </div>
         </div>
       </div>
@@ -176,27 +162,8 @@ const Footer = () => {
           <div className="row align-items-center">
             <div className="col-md-6">
               <p className="mb-0 text-muted small">
-                © 2024 LearnHub. All rights reserved.
+                © 2024 Learnify. All rights reserved.
               </p>
-            </div>
-            <div className="col-md-6 text-md-end">
-              <div className="d-flex justify-content-md-end gap-3">
-                <img 
-                  src="https://via.placeholder.com/40x25/ffffff/000000?text=VISA" 
-                  alt="Visa" 
-                  className="img-fluid"
-                />
-                <img 
-                  src="https://via.placeholder.com/40x25/ffffff/000000?text=MC" 
-                  alt="Mastercard" 
-                  className="img-fluid"
-                />
-                <img 
-                  src="https://via.placeholder.com/40x25/ffffff/000000?text=PP" 
-                  alt="PayPal" 
-                  className="img-fluid"
-                />
-              </div>
             </div>
           </div>
         </div>

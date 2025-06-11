@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 
 // Services
 import AuthService from './services/AuthService';
@@ -10,14 +10,15 @@ import AuthService from './services/AuthService';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import Payments from './components/Payments';
-import Courses from './components/Courses';
+// import Courses from './components/Courses';
 import Wishlist from './components/Wishlist';
 import Profile from './components/Profile';
 import Cart from './components/Cart';
 import Search from './components/Search';
-import CourseDetail from './components/CourseDetail';
+// import CourseDetail from './components/CourseDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
+import CourseList from './components/CourseList';
 import Footer from './components/Footer';
 import Home from './components/Home';
 
@@ -53,12 +54,12 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/courses" element={<Courses />} />
+            {/* <Route path="/courses" element={<Courses />} /> */}
             <Route
               path="/my-courses"
               element={
                 <ProtectedRoute>
-                  <Courses enrolled={true} />
+                  {/* <Courses enrolled={true} /> */}
                 </ProtectedRoute>
               }
             />
@@ -87,7 +88,7 @@ function App() {
               }
             />
             <Route path="/search" element={<Search />} />
-            <Route path="/courses/:id" element={<CourseDetail />} />
+            {/* <Route path="/courses/:id" element={<CourseDetail />} /> */}
             <Route
               path="/users"
               element={
@@ -99,6 +100,17 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/become-instructor"
+              element={
+                <div>
+                  <h1>Become Instructor</h1>
+                  <p>This is a placeholder for the Become Instructor page.</p>
+                </div>
+              }
+            />
+            <Route path="/course-list" element={<CourseList />} />
+
           </Routes>
         </main>
         <Footer />
