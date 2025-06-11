@@ -211,4 +211,45 @@ class CourseApiController extends Controller
             'message' => 'Successfully enrolled in course'
         ]);
     }
+
+    /**
+     * Get course reviews
+     */
+    public function getReviews($courseId)
+    {
+        $course = Course::findOrFail($courseId);
+        $reviews = $course->reviews()->with('user')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $reviews,
+            'message' => 'Course reviews retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Add course review
+     */
+    public function addReview(Request $request, $courseId)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string',
+        ]);
+
+        $user = $request->user();
+        $course = Course::findOrFail($courseId);
+
+        $review = $course->reviews()->create([
+            'user_id' => $user->id,
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $review,
+            'message' => 'Review added successfully'
+        ], 201);
+    }
 }

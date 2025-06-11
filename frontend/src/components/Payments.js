@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PaymentService from '../services/PaymentService';
 import AuthService from '../services/AuthService';
+import PaymentsTable from './PaymentsTable';
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
@@ -45,18 +46,16 @@ const Payments = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleString();
+  const handleEditPayment = (paymentId) => {
+    window.location.href = `/payments/${paymentId}/edit`;
   };
 
-  const getStatusBadge = (status) => {
-    const statusClasses = {
-      pending: 'bg-warning text-dark',
-      completed: 'bg-success',
-      failed: 'bg-danger'
-    };
-    return `badge ${statusClasses[status] || 'bg-secondary'}`;
+  const handleViewPayment = (paymentId) => {
+    window.location.href = `/payments/${paymentId}`;
+  };
+
+  const handleProcessPayment = (paymentId) => {
+    window.location.href = `/payments/${paymentId}/process`;
   };
 
   if (loading) {
@@ -75,7 +74,7 @@ const Payments = () => {
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Payments</h2>
-        {user && user.role === 'Admin' && (
+        {user && user.role.toLowerCase() === 'admin' && (
           <a href="/payments/create" className="btn btn-success">
             Add Payment
           </a>
@@ -108,86 +107,14 @@ const Payments = () => {
         </div>
       )}
 
-      {/* Payments Table */}
-      {payments.length === 0 ? (
-        <div className="alert alert-info">
-          No payments found.
-        </div>
-      ) : (
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <div className="table-responsive">
-              <table className="table table-hover">
-                <thead className="table-dark">
-                  <tr>
-                    {user && user.role === 'Admin' && <th>User</th>}
-                    <th>Course</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Payment Method</th>
-                    <th>Paid At</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {payments.map((payment) => (
-                    <tr key={payment.id}>
-                      {user && user.role === 'Admin' && (
-                        <td>{payment.user?.name || 'N/A'}</td>
-                      )}
-                      <td>{payment.course?.title || payment.course_id}</td>
-                      <td>${payment.amount}</td>
-                      <td>
-                        <span className={getStatusBadge(payment.status)}>
-                          {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-                        </span>
-                      </td>
-                      <td>{payment.payment_method || 'N/A'}</td>
-                      <td>{formatDate(payment.paid_at)}</td>
-                      <td>
-                        <div className="btn-group btn-group-sm" role="group">
-                          <button 
-                            className="btn btn-outline-info"
-                            onClick={() => window.location.href = `/payments/${payment.id}`}
-                          >
-                            View
-                          </button>
-                          
-                          {user && user.role === 'Admin' && (
-                            <>
-                              <button 
-                                className="btn btn-outline-primary"
-                                onClick={() => window.location.href = `/payments/${payment.id}/edit`}
-                              >
-                                Edit
-                              </button>
-                              <button 
-                                className="btn btn-outline-danger"
-                                onClick={() => handleDeletePayment(payment.id)}
-                              >
-                                Delete
-                              </button>
-                            </>
-                          )}
-                          
-                          {payment.status === 'pending' && payment.user_id === user?.id && (
-                            <button 
-                              className="btn btn-outline-success"
-                              onClick={() => window.location.href = `/payments/${payment.id}/process`}
-                            >
-                              Pay Now
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
+      <PaymentsTable 
+        payments={payments} 
+        user={user} 
+        onDelete={handleDeletePayment} 
+        onEdit={handleEditPayment} 
+        onView={handleViewPayment} 
+        onProcessPayment={handleProcessPayment} 
+      />
 
       {/* Back to Dashboard */}
       <div className="mt-4">

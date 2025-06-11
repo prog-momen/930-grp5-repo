@@ -67,6 +67,8 @@ Route::group([
     Route::delete('/{id}', [CourseApiController::class, 'destroy']);
     Route::get('/enrolled', [CourseApiController::class, 'enrolled']);
     Route::post('/{id}/enroll', [CourseApiController::class, 'enroll']);
+    Route::get('/{courseId}/reviews', [CourseApiController::class, 'getReviews']);
+    Route::post('/{courseId}/reviews', [CourseApiController::class, 'addReview']);
 });
 
 // Protected Wishlist Routes
@@ -106,7 +108,7 @@ Route::group([
     Route::post('/avatar', [ProfileApiController::class, 'updateAvatar']);
     Route::post('/change-password', [ProfileApiController::class, 'changePassword']);
     Route::get('/stats', [ProfileApiController::class, 'getStats']);
-    Route::get('/instructor-stats', [ProfileApiController::class, 'getInstructorStats']);
+    Route::get('/instructor-stats', [ProfileApiController::class, 'getInstructorStats'])->middleware('role:instructor|admin');
     Route::get('/enrolled-courses', [ProfileApiController::class, 'getEnrolledCourses']);
     Route::get('/completed-courses', [ProfileApiController::class, 'getCompletedCourses']);
     Route::get('/certificates', [ProfileApiController::class, 'getCertificates']);
@@ -118,4 +120,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/dashboard', function () {
         return response()->json(['message' => 'Welcome to your dashboard!']);
     });
+});
+
+Route::group([
+    'middleware' => ['api', 'jwt.auth', 'role:admin'],
+], function ($router) {
+    Route::get('/users', [\App\Http\Controllers\ProfileController::class, 'getAllUsers']);
+    Route::put('/users/{user}/role', [\App\Http\Controllers\ProfileController::class, 'updateRole']);
 });

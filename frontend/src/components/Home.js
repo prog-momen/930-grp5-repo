@@ -21,8 +21,8 @@ const Home = () => {
                   <i className="fas fa-play me-2"></i>
                   Start Learning
                 </Link>
-                <Link to="/register" className="btn btn-outline-light btn-lg">
-                  Join for Free
+                <Link to="/courses" className="btn btn-outline-light btn-lg">
+                  Join Now
                 </Link>
               </div>
             </div>
