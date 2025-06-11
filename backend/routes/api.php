@@ -8,6 +8,7 @@ use App\Http\Controllers\ApiControllers\CourseApiController;
 use App\Http\Controllers\ApiControllers\WishlistApiController;
 use App\Http\Controllers\ApiControllers\CartApiController;
 use App\Http\Controllers\ApiControllers\ProfileApiController;
+use App\Http\Controllers\ApiControllers\ReportApiController;
 
 // Auth Routes
 Route::group([
@@ -102,6 +103,16 @@ Route::group([
     Route::get('/completed-courses', [ProfileApiController::class, 'getCompletedCourses']);
     Route::get('/certificates', [ProfileApiController::class, 'getCertificates']);
     Route::delete('/', [ProfileApiController::class, 'destroy']);
+});
+
+Route::middleware('verify.supabase.jwt')->group(function () {
+    Route::apiResource('reports', ReportApiController::class)->names([
+        'index' => 'api.reports.index',
+        'show' => 'api.reports.show',
+        'store' => 'api.reports.store',
+        'update' => 'api.reports.update',
+        'destroy' => 'api.reports.destroy',
+    ]);
 });
 
 // Protected routes

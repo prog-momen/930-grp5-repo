@@ -4,19 +4,21 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Report;
-use Illuminate\Support\Facades\Auth;
-
 class ReportController extends Controller
 {
     // عرض قائمة التقارير
     public function index()
     {
-        $user = Auth::user();
+        $user = request()->attributes->get('supabase_user');
 
-        if ($user->role === 'Admin') {
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Please log in to view reports.');
+        }
+
+        if (($user->role ?? null) === 'Admin') {
             $reports = Report::orderBy('created_at', 'desc')->paginate(10);
         } else {
-            $reports = Report::where('reporter_id', $user->id)
+            $reports = Report::where('reporter_id', $user->sub)
                              ->orderBy('created_at', 'desc')
                              ->paginate(10);
         }
@@ -87,10 +89,14 @@ class ReportController extends Controller
     public function show($id)
     {
         $report = Report::findOrFail($id);
-        $user = Auth::user();
+        $user = request()->attributes->get('supabase_user');
+
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Please log in to view reports.');
+        }
 
         // السماح فقط للمستخدم صاحب التقرير أو الأدمن
-        if ($user->id !== $report->reporter_id && $user->role !== 'Admin') {
+        if ($user->sub !== $report->reporter_id && ($user->role ?? null) !== 'Admin') {
             return redirect()->route('reports.index')->with('error', 'Access denied.');
         }
 
@@ -101,9 +107,9 @@ class ReportController extends Controller
     public function edit($id)
     {
         $report = Report::findOrFail($id);
-        $user = Auth::user();
+        $user = request()->attributes->get('supabase_user');
 
-        if ($user->role !== 'Admin') {
+        if (!$user || ($user->role ?? null) !== 'Admin') {
             return redirect()->route('reports.show', $id)
                              ->with('error', 'You do not have permission to edit this report.');
         }
@@ -130,9 +136,9 @@ class ReportController extends Controller
     // تحديث تقرير (للأدمن فقط)
     public function update(Request $request, $id)
     {
-        $user = Auth::user();
+        $user = request()->attributes->get('supabase_user');
 
-        if ($user->role !== 'Admin') {
+        if (!$user || ($user->role ?? null) !== 'Admin') {
             return redirect()->route('reports.show', $id)
                              ->with('error', 'You do not have permission to update this report.');
         }
@@ -161,11 +167,17 @@ class ReportController extends Controller
     // تخزين طلب Become Instructor
     public function storeBecomeInstructor(Request $request)
     {
+        $user = request()->attributes->get('supabase_user');
+
+        if (!$user) {
+            return back()->with('error', 'Please log in to submit a request.');
+        }
+
         $request->validate([
             'message' => 'nullable|string|max:1000',
         ]);
 
-        $exists = Report::where('reporter_id', Auth::id())
+        $exists = Report::where('reporter_id', $user->sub)
                         ->where('type', 'become_instructor')
                         ->first();
 
@@ -174,7 +186,7 @@ class ReportController extends Controller
         }
 
         Report::create([
-            'reporter_id' => Auth::id(),
+            'reporter_id' => $user->sub,
             'type' => 'become_instructor',
             'message' => $request->message,
             'status' => 'pending',
